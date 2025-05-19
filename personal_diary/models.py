@@ -15,8 +15,9 @@ class DiaryEntry(models.Model):
                                                    'Расширение файла « %(extension)s » не допускается. '
                                                    'Разрешенные расширения: %(allowed_extensions)s .',
                                                    'Недопустимое расширение!')]))
-    create_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
-    updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
+    reminder_date = models.DateTimeField(verbose_name='Дата напоминания', blank=True, null=True)
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата последнего изменения')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Создал', related_name='diary_entry')
 
     def __str__(self):
