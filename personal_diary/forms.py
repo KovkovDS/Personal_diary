@@ -1,0 +1,40 @@
+from django import forms
+from .models import DiaryEntry, Contact
+from django.core.exceptions import ValidationError
+
+
+class DiaryEntryForm(forms.ModelForm):
+    """Класс формы модели "Запись в дневнике"."""
+    reminder_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+
+    class Meta:
+        """Класс для изменения поведения полей формы модели "Запись в дневнике"."""
+        model = DiaryEntry
+        fields = ['title', 'reminder_date', 'picture', 'text']
+
+    def clean_reminder_date(self):
+        """Метод проверки поля "Дата напоминания" формы модели "Запись в дневнике"."""
+        cleaned_diary_entry_pk = self.instance.pk
+        reminder_date = self.cleaned_data.get('reminder_date')
+
+        if DiaryEntry.objects.filter(reminder_date=reminder_date).exclude(id=cleaned_diary_entry_pk).exists() \
+                and not None:
+            raise ValidationError('Данное время уже занято другой записью.')
+        return reminder_date
+
+    def __init__(self, *args, **kwargs):
+        """Инициализирует поля формы"""
+        super(DiaryEntryForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Введите Ф.И.О. клиента'})
+        self.fields['picture'].widget.attrs.update({'class': 'form-control', 'type': 'file', 'id': 'formFile'})
+        self.fields['text'].widget.attrs.update({'class': 'form-control', 'id': "exampleFormControlTextarea1",
+                                                'rows': "4", 'placeholder': 'Введите комментарий (описание) по '
+                                                                            'данному клиенту'})
+
+
+class ContactForm(forms.ModelForm):
+    """Класс формы модели "Контакты"."""
+    class Meta:
+        """Класс для изменения поведения полей формы модели "Запись в дневнике"."""
+        model = Contact
+        fields = '__all__'
