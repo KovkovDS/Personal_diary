@@ -66,6 +66,7 @@ jobs:
           cd ${{ secrets.DEPLOY_DIR }}
           sudo git init
           git pull https://github.com/KovkovDS/Personal_diary
+          git checkout develop
           sudo echo "${{ secrets.ENV_FILE }}" >> .env
           ls -la
           docker compose down || true
