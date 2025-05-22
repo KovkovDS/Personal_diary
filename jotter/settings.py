@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
+import sys
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -45,7 +46,9 @@ INSTALLED_APPS = [
     "users",
     "django_countries",
     "phonenumber_field",
-    "phone_field"
+    "phone_field",
+    "corsheaders",
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [
@@ -82,16 +85,24 @@ WSGI_APPLICATION = "jotter.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        'NAME': os.getenv('BD_NAME'),
-        'USER': os.getenv('BD_USER'),
-        'PASSWORD': os.getenv('BD_PASSWORD_USER'),
-        'HOST': os.getenv('HOST_FOR_BD'),
-        'PORT': os.getenv('PORT_ON_HOST_FOR_BD'),
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'test_db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            'NAME': os.getenv('BD_NAME'),
+            'USER': os.getenv('BD_USER'),
+            'PASSWORD': os.getenv('BD_PASSWORD_USER'),
+            'HOST': os.getenv('HOST_FOR_BD'),
+            'PORT': os.getenv('PORT_ON_HOST_FOR_BD'),
+        }
+    }
 
 
 # Password validation
@@ -164,3 +175,14 @@ if CACHE_ENABLED:
             "LOCATION": os.getenv("SERVER_REDIS"),
         }
     }
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000",
+                        "https://read-and-write.example.com", "http://158.160.19.9:8000"]
+
+CORS_ALLOWED_ORIGINS = ["https://example.com", "https://sub.example.com", "http://localhost:8000",
+                        "http://127.0.0.1:8000", "http://158.160.19.9:8000"]
+
+
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOW_CREDENTIALS = True

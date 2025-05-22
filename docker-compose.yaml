@@ -1,0 +1,75 @@
+version: '3.12'
+
+
+
+services:
+
+
+  jotter:
+    build: .
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py collectstatic --noinput
+        python manage.py migrate
+        python manage.py csu
+        python manage.py add_users
+        python manage.py add_entries
+        gunicorn jotter.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+    depends_on:
+      - jotter
+
+  db:
+    image: postgres:17
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    expose:
+      - "5432"
+
+  redis:
+    image: redis:latest
+    volumes:
+      - .:/app
+      - redis_data:/app/data/redis
+    env_file:
+      - ./.env
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 30s
+      timeout: 10s
+
+
+volumes:
+  db_data:
+  static_volume:
+  media_volume:
+  redis_data:
