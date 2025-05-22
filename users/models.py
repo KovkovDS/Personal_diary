@@ -1,10 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from users.validators import validate_image_size
 from django.core.validators import FileExtensionValidator
 from django_countries.fields import CountryField
 from django.contrib.auth.models import BaseUserManager
-from phonenumber_field.modelfields import PhoneNumberField
+from users.validators import validate_image_size
 
 
 class UserManager(BaseUserManager):
@@ -42,7 +41,7 @@ class User(AbstractUser):
                                                                   'Расширение файла « %(extension)s » не допускается. '
                                                                   'Разрешенные расширения: %(allowed_extensions)s .'
                                                                   'Недопустимое расширение!')])
-    phone_number = PhoneNumberField(max_length=11, verbose_name='Номер телефона')
+    phone_number = models.CharField(unique=True, max_length=12, verbose_name='Номер телефона')
     country = CountryField(max_length=150, blank=True, blank_label="(Выберите страну)", verbose_name='Страна')
     username = None
     token = models.CharField(max_length=150, blank=True, null=True, verbose_name='Токен для верификации')

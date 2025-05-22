@@ -16,9 +16,10 @@ class DiaryEntry(models.Model):
                                                    'Разрешенные расширения: %(allowed_extensions)s .',
                                                    'Недопустимое расширение!')]))
     reminder_date = models.DateTimeField(verbose_name='Дата напоминания', blank=True, null=True)
-    create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата последнего изменения')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Создал', related_name='diary_entry')
+    create_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Создал',
+                              related_name='diary_entry')
 
     def __str__(self):
         """Метод для описания человеко читаемого вида модели "Запись в дневнике"."""
@@ -32,6 +33,7 @@ class DiaryEntry(models.Model):
 
 
 class Contact(models.Model):
+    """Класс модели "Контакты"."""
     legal_address = models.TextField(null=True, blank=True, verbose_name='Юридический адрес')
     mailing_address = models.TextField(null=True, blank=True, verbose_name='Почтовый адрес')
     email = models.EmailField(unique=True, verbose_name='E-mail')
@@ -41,3 +43,9 @@ class Contact(models.Model):
         """Метод для описания человеко читаемого вида модели "Контакты"."""
         return (f'\n\nЮридический адрес: {self.legal_address}\nПочтовый адрес: {self.mailing_address}'
                 f'\nE-mail: {self.email}\nТелефон: {self.tel}.')
+
+    class Meta:
+        """Класс для изменения поведения полей модели "Контакты"."""
+        verbose_name = 'Контакты'
+        verbose_name_plural = 'Контакты'
+        ordering = ['mailing_address']
