@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 
 class DiaryEntryForm(forms.ModelForm):
     """Класс формы модели "Запись в дневнике"."""
-    reminder_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+    reminder_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False,
+                                        label='Напомнить')
 
     class Meta:
         """Класс для изменения поведения полей формы модели "Запись в дневнике"."""
@@ -25,11 +26,12 @@ class DiaryEntryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Инициализирует поля формы"""
         super(DiaryEntryForm, self).__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Введите Ф.И.О. клиента'})
+        self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Введите заголовок записи'})
+        self.fields['reminder_date'].widget.attrs.update({'class': 'form-control',
+                                                         'aria-label': 'Напомнить'})
         self.fields['picture'].widget.attrs.update({'class': 'form-control', 'type': 'file', 'id': 'formFile'})
         self.fields['text'].widget.attrs.update({'class': 'form-control', 'id': "exampleFormControlTextarea1",
-                                                'rows': "4", 'placeholder': 'Введите комментарий (описание) по '
-                                                                            'данному клиенту'})
+                                                'rows': "4", 'placeholder': 'Введите текст записи'})
 
 
 class ContactForm(forms.ModelForm):
@@ -38,3 +40,8 @@ class ContactForm(forms.ModelForm):
         """Класс для изменения поведения полей формы модели "Запись в дневнике"."""
         model = Contact
         fields = '__all__'
+
+
+class DateForm(forms.Form):
+    """Класс формы для дат."""
+    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M'])

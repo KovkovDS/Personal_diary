@@ -11,7 +11,7 @@ app_name = UsersConfig.name
 
 urlpatterns = [
     path('authorization/', AuthorizationView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(next_page='sending_messages:home'), name='logout'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('registration/', RegistrationView.as_view(), name='registration'),
     path('profile/email-confirm/<str:token>/', email_verification, name='email-confirm'),
     path('profile/<int:pk>/', ProfileView.as_view(), name='profile'),

@@ -2,18 +2,30 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm, PasswordResetForm
 from .models import User
 from django_countries.widgets import CountrySelectWidget
+from django.core.validators import RegexValidator
+
+
+phone_number_validator = RegexValidator(regex=r'^((\+7|7|8)+([0-9]){10})$',
+                                        message='Не корректный формат номера телефона. '
+                                                'Номер телефона должен быть введен в формате:'
+                                                '"+79999999999". Допускается до 12 цифр.')
 
 
 class UserRegistrationForm(UserCreationForm):
     """Класс формы создания объекта модели "Пользователь"."""
+
+    phone_number = forms.CharField(max_length=12, required=True, validators=[phone_number_validator],
+                                   label='Номер телефона')
+
     class Meta(UserCreationForm.Meta):
         """Класс для изменения поведения полей формы модели "Пользователь"."""
         model = User
         fields = ('email', 'avatar', 'first_name', 'last_name', 'phone_number', 'country', 'password1', 'password2')
-        widgets = {"country": CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" '
-                                                         'style="margin: 3px 4px 6px; width: 2.5%; height: 2.5%" '
-                                                         'class="me-auto flex-shrink-1" '
-                                                         'src="{country.flag}">')}
+        widgets = {
+            "country": CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" '
+                                                  'style="margin: 3px 4px 6px; width: 2.5%; height: 2.5%" '
+                                                  'class="me-auto flex-shrink-1" src="{country.flag}">'),
+        }
 
     def clean_email(self):
         """Метод проверки поля "Адрес электронной почты" формы модели "Пользователь"."""
@@ -21,13 +33,6 @@ class UserRegistrationForm(UserCreationForm):
         if '@' not in email:
             raise forms.ValidationError('Некорректный адрес электронной почты. Пожалуйста введите корректные данные.')
         return email
-
-    def clean_phone_number(self):
-        """Метод проверки поля "Номер телефона" формы модели "Пользователь"."""
-        phone_number = self.cleaned_data.get('phone_number')
-        if phone_number and not phone_number.isdigit():
-            raise forms.ValidationError('Номер телефона должен состоять только из цифр.')
-        return phone_number
 
     def __init__(self, *args, **kwargs):
         """Инициализирует поля формы"""
@@ -38,7 +43,8 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['first_name'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Введите ваше имя'})
         self.fields['last_name'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Введите вашу фамилию'})
         self.fields['phone_number'].widget.attrs.update({'class': 'form-control',
-                                                         'placeholder': 'Введите ваш номер телефона',
+                                                         'placeholder': 'Введите ваш номер телефона в формате '
+                                                                        '"+79999999999"',
                                                          'label': 'Номер телефона'})
         self.fields['country'].widget.attrs.update({'class': 'form-select', 'placeholder': 'Выберите страну',
                                                     'style': 'width: 90%'})
@@ -49,6 +55,9 @@ class UserRegistrationForm(UserCreationForm):
 
 class UserUpdateForm(UserCreationForm):
     """Класс формы обновления объекта модели "Пользователь"."""
+    phone_number = forms.CharField(max_length=12, required=True, validators=[phone_number_validator],
+                                   label='Номер телефона')
+
     class Meta(UserCreationForm.Meta):
         """Класс для изменения поведения полей формы модели "Пользователь"."""
         model = User
@@ -64,13 +73,6 @@ class UserUpdateForm(UserCreationForm):
         if '@' not in email:
             raise forms.ValidationError('Некорректный адрес электронной почты. Пожалуйста введите корректные данные.')
         return email
-
-    def clean_phone_number(self):
-        """Метод проверки поля "Номер телефона" формы модели "Пользователь"."""
-        phone_number = self.cleaned_data.get('phone_number')
-        if phone_number and not phone_number.isdigit():
-            raise forms.ValidationError('Номер телефона должен состоять только из цифр.')
-        return phone_number
 
     def __init__(self, *args, **kwargs):
         """Инициализирует поля формы"""
