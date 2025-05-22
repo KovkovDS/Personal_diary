@@ -65,8 +65,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           cd ${{ secrets.DEPLOY_DIR }}
           sudo git init
-          sudo git pull https://github.com/KovkovDS/Personal_diary
-          sudo git checkout develop
+          sudo git pull https://github.com/KovkovDS/Personal_diary/develop
           sudo echo "${{ secrets.ENV_FILE }}" >> .env
           ls -la
           docker compose down || true
