@@ -153,6 +153,19 @@ class SearchEntries(LoginRequiredMixin, View):
             except EmptyPage:
                 context['diary_entries'] = current_page.page(current_page.num_pages)
             return render(request, template_name=self.template_name, context=context)
+        elif search_query == '':
+            context['last_search_query'] = '?search_query=%s' % search_query
+            current_page = Paginator(user_entries, 10)
+
+            page = request.GET.get('page')
+            try:
+                context['diary_entries'] = current_page.page(page)
+            except PageNotAnInteger:
+                context['diary_entries'] = current_page.page(1)
+            except EmptyPage:
+                context['diary_entries'] = current_page.page(current_page.num_pages)
+
+            return render(request, template_name=self.template_name, context=context)
         else:
             context['last_search_query'] = '?search_query=%s' % search_query
             current_page = Paginator(user_entries, 10)
