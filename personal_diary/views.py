@@ -136,13 +136,26 @@ class SearchEntries(LoginRequiredMixin, View):
         """Метод запроса GET для вывода отфильтрованной ключевому слову запроса информации по записям."""
         context = {}
         search_query = request.GET.get('search_query')
+        user_entries = DiaryEntry.objects.filter(owner=self.request.user)
         if search_query is not None:
-            diary_entries = DiaryEntry.objects.filter(
-                Q(owner=self.request.user) | Q(title__icontains=search_query) | Q(text__icontains=search_query)).\
+            diary_entries = user_entries.filter(
+                Q(title__icontains=search_query) | Q(text__icontains=search_query)).\
                 order_by('updated_at')
 
             context['last_search_query'] = '?search_query=%s' % search_query
             current_page = Paginator(diary_entries, 10)
+
+            page = request.GET.get('page')
+            try:
+                context['diary_entries'] = current_page.page(page)
+            except PageNotAnInteger:
+                context['diary_entries'] = current_page.page(1)
+            except EmptyPage:
+                context['diary_entries'] = current_page.page(current_page.num_pages)
+            return diary_entries
+        else:
+            context['last_search_query'] = '?search_query=%s' % search_query
+            current_page = Paginator(user_entries, 10)
 
             page = request.GET.get('page')
             try:
