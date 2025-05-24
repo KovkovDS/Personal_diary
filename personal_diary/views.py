@@ -139,7 +139,7 @@ class SearchEntries(LoginRequiredMixin, View):
         user_entries = DiaryEntry.objects.filter(owner=self.request.user)
         if search_query is not None:
             diary_entries = user_entries.filter(
-                 Q(title__icontains=search_query) | Q(text__icontains=search_query)).\
+                Q(title__icontains=search_query) | Q(text__icontains=search_query)).\
                 order_by('updated_at')
 
             context['last_search_query'] = '?search_query=%s' % search_query
