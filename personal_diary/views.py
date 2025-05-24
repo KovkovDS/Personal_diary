@@ -138,7 +138,8 @@ class SearchEntries(LoginRequiredMixin, View):
         search_query = request.GET.get('search_query')
         if search_query is not None:
             diary_entries = DiaryEntry.objects.filter(
-                Q(title__icontains=search_query) | Q(text__icontains=search_query)).order_by('updated_at')
+                Q(owner=self.request.user) | Q(title__icontains=search_query) | Q(text__icontains=search_query)).\
+                order_by('updated_at')
 
             context['last_search_query'] = '?search_query=%s' % search_query
             current_page = Paginator(diary_entries, 10)
